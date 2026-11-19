@@ -1,4 +1,4 @@
-// Neon Coast Cover Maker — editor state, UI wiring, export and ?shot= staging.
+// Neon Coast Cover Maker — editor state, control wiring, export, ?shot= staging.
 import { drawCover, layoutPanels, LAYOUTS, GRADES, SIZES } from './render.js';
 
 const $ = (id) => document.getElementById(id);
@@ -14,16 +14,19 @@ const state = {
   caption: 'NEON COAST',
   subtitle: 'A Solmar Story',
   onePhoto: false,
-  photos: [], // { img, name, ox, oy, zoom, fit }
-  selected: 0, // selected panel index
+  photos: [], // each { img, name, ox, oy, zoom, fit }
+  selected: 0, // which panel the pan/zoom controls act on
 };
 
+// The four photos shipped with the app — one per panel, so no layout ever
+// has to repeat a photo. All four were made with an image model.
 const SAMPLES = [
   { name: 'boulevard', file: 'samples/boulevard.jpg', label: 'Boulevard' },
   { name: 'pier', file: 'samples/pier.jpg', label: 'Pier' },
+  { name: 'rooftop', file: 'samples/rooftop.jpg', label: 'Rooftop' },
+  { name: 'boardwalk', file: 'samples/boardwalk.jpg', label: 'Boardwalk' },
 ];
 
-let fontsReady = false;
 let paintQueued = false;
 
 function currentSize() {
@@ -45,8 +48,6 @@ function requestPaint() {
 }
 
 function selectedPhoto() {
-  const panels = layoutPanels(state.layout, 1, 1);
-  void panels;
   const n = LAYOUTS[state.layout].panels;
   const idx = state.onePhoto ? 0 : (state.selected % Math.max(1, state.photos.length || 1));
   return state.photos.length ? state.photos[Math.min(idx, state.photos.length - 1)] : null;
@@ -105,7 +106,7 @@ function renderThumbs() {
     });
     d.append(img, lab, rm);
     d.addEventListener('click', () => {
-      // Click a thumbnail to assign it to the selected panel's slot.
+      // Clicking a thumbnail selects the panel that photo feeds.
       state.selected = i % LAYOUTS[state.layout].panels;
       refreshUI(); requestPaint();
     });
@@ -249,16 +250,17 @@ async function boot() {
   if (q.layout !== null && q.layout !== undefined && LAYOUTS[Number(q.layout)]) state.layout = Number(q.layout);
   if (q.grade && GRADES.includes(q.grade)) state.grade = q.grade;
 
-  const photoName = q.photo || 'boulevard';
   if (q.shot === 'cover' || q.shot === 'editor') {
     document.body.classList.add(q.shot === 'cover' ? 'shot-cover' : 'shot-editor');
-    // Cover staging: load both samples so every panel has a photo.
-    await loadSample('boulevard');
-    await loadSample('pier');
-    if (photoName === 'pier' && state.photos.length > 1) {
-      // Put pier first so the hero panel shows it.
-      const [b, p] = state.photos;
-      state.photos = [p, b];
+    // Staged shots load every sample, so each panel shows a different photo.
+    for (const s of SAMPLES) await loadSample(s.name);
+    if (q.photo) {
+      // Put the requested photo first so it feeds the hero panel.
+      const at = state.photos.findIndex((p) => p.name.toLowerCase() === q.photo.toLowerCase());
+      if (at > 0) {
+        const [first] = state.photos.splice(at, 1);
+        state.photos.unshift(first);
+      }
     }
     state.onePhoto = false;
   }
@@ -267,13 +269,20 @@ async function boot() {
   // Wait for the display font so the caption paints in Anton, not a fallback.
   try {
     await Promise.race([
-      document.fonts.load('100px Anton').then(() => { fontsReady = true; }),
+      document.fonts.load('100px Anton').then(() => {}),
       new Promise((r) => setTimeout(r, 2500)),
     ]);
   } catch { /* fall back to system fonts */ }
   paint();
   window.__shotReady = true;
   window.__ready = true;
+  // Read-only handle for automated checks: staged photo count + settings.
+  window.__neonCoast = {
+    photos: () => state.photos.map((p) => p.name),
+    layout: () => state.layout,
+    grade: () => state.grade,
+    size: () => state.size,
+  };
 }
 
 boot();
