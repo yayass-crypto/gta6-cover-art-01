@@ -6,6 +6,7 @@ export const LAYOUTS = [
   { id: 'hero-duo', name: 'Hero + Duo', panels: 3 },
   { id: 'four-up', name: 'Four-Up', panels: 4 },
   { id: 'hero-strip', name: 'Hero + Strip', panels: 4 },
+  { id: 'triptych', name: 'Triptych', panels: 3 },
 ];
 
 export const GRADES = ['sunset', 'neon', 'noir'];
@@ -43,6 +44,16 @@ export function layoutPanels(layout, W, H) {
       { x: x0, y: y0 + heroH + g, w: pw, h: stripH },
       { x: x0 + pw + g, y: y0 + heroH + g, w: pw, h: stripH },
       { x: x0 + 2 * (pw + g), y: y0 + heroH + g, w: pw, h: stripH },
+    ];
+  }
+  if (layout === 3) {
+    // Triptych: three tall panels — wide centre hero, narrow wings.
+    const sideW = cw * 0.24;
+    const midW = cw - 2 * sideW - 2 * g;
+    return [
+      { x: x0, y: y0, w: sideW, h: ch },
+      { x: x0 + sideW + g, y: y0, w: midW, h: ch },
+      { x: x0 + sideW + g + midW + g, y: y0, w: sideW, h: ch },
     ];
   }
   // Layout 0 — Hero + duo: big left hero, two stacked panels on the right.
