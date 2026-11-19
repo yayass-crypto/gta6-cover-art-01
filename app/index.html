@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neon Coast Cover Maker — GTA-style poster covers from your photos</title>
+<meta name="description" content="Turn your photos and a caption into GTA-style multi-panel poster cover art, in sunset, neon or noir grades. Exported as a PNG, 100% on your machine.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">NC</span>
+    <div>
+      <h1>Neon Coast Cover Maker</h1>
+      <p class="tagline">Your photos + a caption = GTA-style poster cover art</p>
+    </div>
+  </div>
+  <button id="exportBtn" class="btn-primary" type="button">Export PNG ↓</button>
+</header>
+
+<main class="layout">
+  <aside class="controls" id="controls">
+    <section class="panel">
+      <h2>1 · Photos</h2>
+      <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Add photos">
+        <strong>Drop photos here</strong>
+        <span>or click to choose · up to 4 · stays on your machine</span>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" multiple hidden>
+      <div class="sample-row">
+        <span class="label">Try a sample:</span>
+        <button type="button" data-sample="boulevard" class="btn">Boulevard</button>
+        <button type="button" data-sample="pier" class="btn">Pier</button>
+      </div>
+      <div id="thumbs" class="thumbs"></div>
+      <label class="check"><input type="checkbox" id="onePhoto"> One photo fills all panels</label>
+    </section>
+
+    <section class="panel">
+      <h2>2 · Layout</h2>
+      <div class="btn-row" role="group" aria-label="Layout">
+        <button type="button" class="btn seg" data-layout="0">Hero + Duo</button>
+        <button type="button" class="btn seg" data-layout="1">Four-Up</button>
+        <button type="button" class="btn seg" data-layout="2">Hero + Strip</button>
+      </div>
+      <p class="hint">Click a panel in the preview to select it, then drag to pan its photo.</p>
+    </section>
+
+    <section class="panel">
+      <h2>3 · Grade &amp; finish</h2>
+      <div class="btn-row" role="group" aria-label="Grade">
+        <button type="button" class="btn seg" data-grade="sunset">🌇 Sunset</button>
+        <button type="button" class="btn seg" data-grade="neon">💠 Neon</button>
+        <button type="button" class="btn seg" data-grade="noir">🎞 Noir</button>
+      </div>
+      <label class="check"><input type="checkbox" id="halftone" checked> Halftone print dots</label>
+      <label class="check"><input type="checkbox" id="grain" checked> Film grain</label>
+    </section>
+
+    <section class="panel">
+      <h2>4 · Caption</h2>
+      <label class="field">Cover caption
+        <input type="text" id="captionInput" maxlength="40" value="NEON COAST" autocomplete="off">
+      </label>
+      <label class="field">Subtitle
+        <input type="text" id="subtitleInput" maxlength="60" value="A Solmar Story" autocomplete="off">
+      </label>
+    </section>
+
+    <section class="panel">
+      <h2>5 · Selected photo</h2>
+      <p class="hint" id="panelLabel">Panel 1 of 3</p>
+      <label class="field">Zoom <span id="zoomVal" class="value">100%</span>
+        <input type="range" id="zoom" min="50" max="300" value="100">
+      </label>
+      <button type="button" id="fitToggle" class="btn">Fit: Fill</button>
+    </section>
+
+    <section class="panel">
+      <h2>6 · Size</h2>
+      <div class="btn-row" role="group" aria-label="Size">
+        <button type="button" class="btn seg" data-size="1080x1080">1080 × 1080</button>
+        <button type="button" class="btn seg" data-size="1080x1350">1080 × 1350</button>
+        <button type="button" class="btn seg" data-size="1920x1080">1920 × 1080</button>
+      </div>
+      <p class="hint" id="sizeNote"></p>
+    </section>
+
+    <p class="privacy">🔒 100% local — photos are read on your machine and never uploaded.</p>
+  </aside>
+
+  <section class="stage">
+    <div class="canvas-wrap">
+      <canvas id="preview" width="1920" height="1080" aria-label="Cover preview"></canvas>
+    </div>
+    <p class="stage-hint">Drag a panel to pan its photo · the preview is the exact cover that exports</p>
+  </section>
+</main>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
